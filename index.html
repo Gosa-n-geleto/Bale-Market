@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bale Market</title>
+  <link rel="icon" href="FreeSample-Vectorizer-io-6d05ea99-0cd9-401c-bf46-c90a7319493e.svg" type="image/png">
+
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(90deg, #000000, #3533cd);
+      overflow: hidden;
+    }
+
+    .iframe-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+    }
+
+    .loader {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 10;
+      text-align: center;
+    }
+
+    .logo-wrapper {
+      position: relative;
+      width: 300px;
+      height: 300px;
+    }
+
+    .logo-image {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow: 0 0 25px rgba(255, 255, 255, 0.2);
+      z-index: 2;
+      position: relative;
+    }
+
+    .orbit-spinner {
+      position: absolute;
+      top: -20px;
+      left: -20px;
+      width: 340px;
+      height: 340px;
+      border: 6px solid rgba(255, 255, 255, 0.2);
+      border-top: 6px solid #ffffff;
+      border-radius: 50%;
+      animation: spin 1.5s linear infinite;
+      z-index: 1;
+    }
+
+    .loading-text {
+      margin-top: 30px;
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #ffffffcc;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+      animation: pulse 2s infinite;
+    }
+
+    .mobile-link {
+      display: none;
+      height: 100vh;
+      width: 100%;
+      background: #000;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .mobile-link a {
+      color: #fff;
+      font-size: 1.4rem;
+      font-weight: bold;
+      text-decoration: underline;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    /* On small screens, hide iframe and show link */
+    @media (max-width: 768px) {
+      .iframe-container {
+        display: none;
+      }
+
+      .mobile-link {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Loader + Iframe -->
+  <div class="iframe-container">
+    <div class="loader" id="loader">
+      <div class="logo-wrapper">
+        <img src="FreeSample-Vectorizer-io-6d05ea99-0cd9-401c-bf46-c90a7319493e.svg"
+             alt="Bale Market Logo" class="logo-image" />
+        <div class="orbit-spinner"></div>
+      </div>
+      <div class="loading-text">Loading ...</div>
+    </div>
+
+    <iframe
+      src="https://script.google.com/macros/s/AKfycbw-aiFNMDOCPfVqP1W5QgQn_xkrCifGuEcjVvol2hqu1LP1_8S-VPkGW2qVyZFgd8iO/exec"
+      title="Bale Market Web App" onload="iframeLoaded()" allowfullscreen>
+    </iframe>
+  </div>
+
+  <!-- Mobile Direct Link -->
+  <div class="mobile-link">
+    <p>
+      📱 For better experience on mobile, open Bale Market directly: <br><br>
+      <a href="https://script.google.com/macros/s/AKfycbw-aiFNMDOCPfVqP1W5QgQn_xkrCifGuEcjVvol2hqu1LP1_8S-VPkGW2qVyZFgd8iO/exec" target="_blank">
+        Open Bale Market
+      </a>
+    </p>
+  </div>
+
+  <script>
+    function iframeLoaded() {
+      document.getElementById('loader').style.display = 'none';
+      document.querySelector('iframe').style.opacity = '1';
+    }
+  </script>
+</body>
+</html>
