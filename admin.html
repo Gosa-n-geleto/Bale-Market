@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Libre+Barcode+128+Text"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      .nav-link {
+        @apply px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200;
+      }
+      .nav-link:hover {
+        @apply bg-indigo-600/80 transform scale-105;
+      }
+      .nav-link.router-link-active {
+        @apply bg-indigo-600/80;
+      }
+      .fade-enter-active,
+      .fade-leave-active {
+        transition: opacity 0.3s ease;
+      }
+      .fade-enter,
+      .fade-leave-to {
+        opacity: 0;
+      }
+      .navbar-gradient {
+        background: linear-gradient(135deg, #e2ecfa 0%, #f6f7ff 100%);
+      }
+
+      /* Global Modal Styles */
+      .global-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        z-index: 2000; /* Ensure it's above other content */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+      }
+      .global-modal-overlay.is-open {
+        opacity: 1;
+        visibility: visible;
+      }
+      .global-modal-content {
+        background-color: white;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        max-width: 1600px;
+        width: 98%; /* Mobile default */
+        transform: scale(0.95);
+        transition: transform 0.3s ease;
+        height: 95vh;
+        min-height: 80vh;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Tablet and larger screens */
+      @media (min-width: 768px) {
+        .global-modal-content {
+          width: 85%;
+        }
+      }
+
+      /* Large screens and desktops */
+      @media (min-width: 1024px) {
+        .global-modal-content {
+          width: 50%;
+        }
+      }
+      .global-modal-overlay.is-open .global-modal-content {
+        transform: scale(1);
+      }
+      .global-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #e5e7eb; /* gray-200 */
+        padding-bottom: 15px;
+        margin-bottom: 20px;
+      }
+      .global-modal-title {
+        font-size: 1.5rem; /* text-2xl */
+        font-weight: 700; /* font-bold */
+        color: #1f2937; /* gray-800 */
+        margin: 0;
+      }
+      .global-modal-close-button {
+        background: none;
+        border: none;
+        font-size: 2rem; /* Increased size */
+        font-weight: 300; /* Lighter weight */
+        line-height: 1;
+        cursor: pointer;
+        color: #6b7280; /* gray-500 */
+        padding: 5px; /* Easier to click */
+      }
+      .global-modal-close-button:hover {
+        color: #1f2937; /* gray-800 */
+      }
+      .global-modal-body {
+        color: #374151; /* gray-700 */
+        line-height: 1.6;
+        flex: 1;
+        overflow-y: auto;
+        padding-right: 5px;
+      }
+      .global-modal-body p {
+        margin-bottom: 0.75rem;
+      }
+      .global-modal-body strong {
+        color: #111827; /* gray-900 */
+      }
+      .global-modal-footer {
+        border-top: 1px solid #e5e7eb; /* gray-200 */
+        padding-top: 15px;
+        margin-top: 20px;
+        text-align: right;
+      }
+      .global-modal-footer-button {
+        padding: 10px 20px;
+        background-color: #3b82f6; /* blue-500 */
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500; /* medium */
+        transition: background-color 0.2s ease;
+      }
+      .global-modal-footer-button:hover {
+        background-color: #2563eb; /* blue-600 */
+      }
+      .global-modal-footer-button.secondary {
+        background-color: #e5e7eb; /* gray-200 */
+        color: #374151; /* gray-700 */
+      }
+      .global-modal-footer-button.secondary:hover {
+        background-color: #d1d5db; /* gray-300 */
+      }
+    </style>
+  </head>
+
+  <body class="bg-gray-50">
+    <div id="app" class="min-h-screen">
+      <nav class="navbar-gradient text-gray-800 shadow-sm">
+        <div class="container mx-auto px-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+              <router-link
+                to="/"
+                class="flex items-center transform hover:scale-105 transition-transform duration-200"
+              >
+                <img
+                  :src="siteLogo"
+                  :alt="'Logo'"
+                  class="w-16 h-auto rounded-lg shadow-md bg-blue-50"
+                />
+              </router-link>
+            </div>
+            <div class="flex items-center space-x-6">
+              <!-- <pre
+                class="text-xs bg-indigo-900/30 backdrop-blur-sm px-4 py-2 rounded-lg border border-indigo-400/20"
+                id="userInfo"
+              ></pre> -->
+
+              <router-link to="/admin" class="nav-link"> Products </router-link>
+              <!--<router-link to="/settings" class="nav-link">
+                Settings
+              </router-link> -->
+            </div>
+          </div>
+        </div>
+      </nav>
+      <div class="container mx-auto px-4 py-8">
+        <transition name="fade" mode="out-in">
+          <router-view></router-view>
+        </transition>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-router@3.5.3/dist/vue-router.min.js"></script>
+
+    <?!= include('Pages/Admin'); ?>
+    <?!= include('Pages/Settings'); ?>
+    <?!= include('Components/GlobalModal'); ?>
+
+    <script>
+      const routes = [
+        {
+          path: "/",
+          component: Admin,
+          name: "Admin",
+        },
+        {
+          path: "/admin",
+          component: Admin,
+          name: "Admin",
+        },
+        {
+          path: "/settings",
+          component: Settings,
+          name: "Settings",
+        },
+      ];
+      const router = new VueRouter({
+        routes,
+      });
+
+      new Vue({
+        el: "#app",
+        router,
+        data: {
+          settings: {
+            siteName: "",
+            siteLogo: "",
+          },
+        },
+        computed: {
+          siteLogo() {
+            if (!this.settings || !this.settings.siteLogo) {
+              return "";
+            }
+            return this.transformToThumbnail(this.settings.siteLogo);
+          },
+        },
+        methods: {
+          transformToThumbnail(url, size = "w100") {
+            if (!url) return "";
+
+            // If already a thumbnail URL, return as is
+            if (url.includes("drive.google.com/thumbnail")) {
+              return url;
+            }
+
+            // Extract file ID from various Google Drive URL formats
+            let fileId = "";
+
+            // Format: https://drive.google.com/file/d/FILE_ID/view
+            const fileMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+            if (fileMatch) {
+              fileId = fileMatch[1];
+            }
+
+            // Format: https://drive.google.com/open?id=FILE_ID
+            const openMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+            if (openMatch) {
+              fileId = openMatch[1];
+            }
+
+            // Format: https://drive.google.com/uc?id=FILE_ID
+            const ucMatch = url.match(/uc\?id=([a-zA-Z0-9_-]+)/);
+            if (ucMatch) {
+              fileId = ucMatch[1];
+            }
+
+            // If we found a file ID, return thumbnail URL
+            if (fileId) {
+              return (
+                "https://drive.google.com/thumbnail?id=" +
+                fileId +
+                "&sz=" +
+                size
+              );
+            }
+
+            // If no Google Drive format detected, return original URL
+            return url;
+          },
+          loadSettings() {
+            google.script.run
+              .withSuccessHandler((data) => {
+                if (data) {
+                  const parsedData = JSON.parse(data);
+                  this.settings = {
+                    ...this.settings,
+                    ...parsedData,
+                  };
+                }
+              })
+              .withFailureHandler((err) => {
+                console.error("Error loading settings in admin:", err);
+              })
+              .getSiteSettings();
+          },
+        },
+        mounted() {
+          this.loadSettings();
+        },
+      });
+    </script>
+  </body>
+</html>
