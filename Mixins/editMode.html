@@ -1,0 +1,17 @@
+<script>
+  const someMixin = {
+    computed: {
+      isEditMode() {
+        return store.state.isEditMode;
+      },
+    },
+    methods: {
+      toggleEditMode() {
+        store.actions.toggleEditMode();
+      },
+      setEditMode(value) {
+        store.actions.setEditMode(value);
+      },
+    },
+  };
+</script>
