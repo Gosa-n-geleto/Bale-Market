@@ -1,0 +1,29 @@
+<script>
+  const Utils = {
+    toJsonArray(array) {
+      const heads = array.shift();
+      const obj = array.map((r) =>
+        heads.reduce((o, k, i) => ((o[k] = r[i]), o), {})
+      );
+      return obj.reverse();
+    },
+    jsonArrayToIndexedRecord(jsonArray, key) {
+      return jsonArray.reduce((acc, item) => {
+        acc[item[key]] = item;
+        return acc;
+      }, {});
+    },
+    transformToProducts: (data, fieldMapping) => {
+      if (!data || !fieldMapping) return [];
+    },
+    SOME_CONSTANT: "some constant",
+  };
+
+  function arrayToJSON(array) {
+    return JSON.stringify(array);
+  }
+
+  function JSONToArray(obj) {
+    return JSON.parse(obj);
+  }
+</script>
