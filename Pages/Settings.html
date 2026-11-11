@@ -1,0 +1,393 @@
+<template>
+  <div class="container mx-auto p-4">
+    <h1 class="text-2xl font-bold mb-4">Site Settings</h1>
+    <form @submit.prevent="saveSettings">
+      <!-- Basic Site Settings -->
+      <div class="mb-8">
+        <h2 class="text-xl font-semibold mb-4">Basic Settings</h2>
+        <div class="mb-4">
+          <label for="siteName" class="block text-sm font-medium text-gray-700">Site Name</label>
+          <input type="text" id="siteName" v-model="settings.siteName"
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+        </div>
+        <div class="mb-4">
+          <label for="siteLogo" class="block text-sm font-medium text-gray-700">Site Logo URL</label>
+          <input type="text" id="siteLogo" v-model="settings.siteLogo"
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+        </div>
+        <!-- Deployed site URL -->
+        <div class="mb-4">
+          <label for="deployedSiteUrl" class="block text-sm font-medium text-gray-700">Deployed Site URL</label>
+          <input type="text" id="deployedSiteUrl" v-model="settings.deployedSiteUrl"
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+          <p class="mt-2 text-xs text-gray-500">
+            Paste in the deployed URL. Needed so that About, Terms Page, and
+            Privacy Policy page can be redirected.
+          </p>
+        </div>
+
+        <!-- Locale -->
+        <div class="mb-4">
+          <label for="locale" class="block text-sm font-medium text-gray-700">Locale</label>
+          <input type="text" id="locale" v-model="settings.locale" placeholder="en-US"
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+          <p class="mt-2 text-xs text-gray-500">
+            The locale used for formatting dates and numbers (e.g., en-US,
+            fr-FR)
+          </p>
+        </div>
+
+        <!-- Currency -->
+        <div class="mb-4">
+          <label for="currency" class="block text-sm font-medium text-gray-700">Currency</label>
+          <input type="text" id="currency" v-model="settings.currency" placeholder="USD"
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+          <p class="mt-2 text-xs text-gray-500">
+            The currency code used for price formatting (e.g., USD, EUR)
+          </p>
+        </div>
+      </div>
+
+      <!-- Hero Section Settings -->
+      <div class="mb-8">
+        <h2 class="text-xl font-semibold mb-4">Hero Section</h2>
+        <div class="mb-4">
+          <label for="heroTitle" class="block text-sm font-medium text-gray-700">Hero Title</label>
+          <input type="text" id="heroTitle" v-model="settings.heroTitle" placeholder="Discover Premium Collections"
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+          <p class="mt-2 text-xs text-gray-500">
+            The main headline displayed on your homepage hero section
+          </p>
+        </div>
+        <div class="mb-4">
+          <label for="heroSubtitle" class="block text-sm font-medium text-gray-700">Hero Subtitle</label>
+          <textarea id="heroSubtitle" v-model="settings.heroSubtitle" rows="2"
+            placeholder="Curated selection of luxury furniture designed for the modern lifestyle"
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
+          <p class="mt-2 text-xs text-gray-500">
+            The subtitle text displayed below the hero title
+          </p>
+        </div>
+      </div>
+
+      <!-- Company Info Section -->
+      <div class="mb-8">
+        <h2 class="text-xl font-semibold mb-4">Company Information</h2>
+        <div class="mb-4">
+          <label for="companyDescription" class="block text-sm font-medium text-gray-700">Company Description</label>
+          <textarea id="companyDescription" v-model="settings.companyDescription" rows="3"
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
+        </div>
+      </div>
+
+      <!-- Social Media Links -->
+      <div class="mb-8">
+        <h2 class="text-xl font-semibold mb-4">Social Media Links</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="mb-4">
+            <label for="twitterUrl" class="block text-sm font-medium text-gray-700">Twitter URL</label>
+            <input type="url" id="twitterUrl" v-model="settings.socialMedia.twitter"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+          </div>
+          <div class="mb-4">
+            <label for="facebookUrl" class="block text-sm font-medium text-gray-700">Facebook URL</label>
+            <input type="url" id="facebookUrl" v-model="settings.socialMedia.facebook"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+          </div>
+          <div class="mb-4">
+            <label for="instagramUrl" class="block text-sm font-medium text-gray-700">Instagram URL</label>
+            <input type="url" id="instagramUrl" v-model="settings.socialMedia.instagram"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+          </div>
+          <div class="mb-4">
+            <label for="pinterestUrl" class="block text-sm font-medium text-gray-700">Pinterest URL</label>
+            <input type="url" id="pinterestUrl" v-model="settings.socialMedia.pinterest"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="mb-8">
+        <h2 class="text-xl font-semibold mb-4">Quick Links</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div v-for="(link, index) in settings.quickLinks" :key="index" class="mb-4">
+            <label :for="'quickLink' + index" class="block text-sm font-medium text-gray-700">Link {{ index + 1
+              }}</label>
+            <input type="text" :id="'quickLink' + index" v-model="settings.quickLinks[index]"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Categories -->
+      <div class="mb-8">
+        <h2 class="text-xl font-semibold mb-4">Categories</h2>
+        <div class="grid grid-cols-1 gap-4">
+          <div v-for="(category, index) in settings.categories" :key="index" class="flex items-center gap-2 mb-2">
+            <input type="text" :id="'category' + index" v-model="settings.categories[index]"
+              class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+            <button @click="removeCategory(index)" type="button" class="px-2 py-1 text-red-600 hover:text-red-800">
+              ✕
+            </button>
+          </div>
+          <button @click="addCategory" type="button"
+            class="mt-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200">
+            Add Category
+          </button>
+        </div>
+      </div>
+
+      <!-- Tags Management -->
+      <div class="mb-8">
+        <h2 class="text-xl font-semibold mb-4">Tags Management</h2>
+        <div class="mb-4">
+          <div class="flex gap-2 mb-4">
+            <input type="text" v-model="newTag" placeholder="Enter new tag"
+              class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+            <button @click="addTag" type="button" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+              Add Tag
+            </button>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <div v-for="(tag, index) in settings.tags" :key="index"
+              class="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full">
+              <span>{{ tag }}</span>
+              <button @click="removeTag(index)" type="button" class="text-red-600 hover:text-red-800">
+                ✕
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Information -->
+      <div class="mb-8">
+        <h2 class="text-xl font-semibold mb-4">Contact Information</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="mb-4">
+            <label for="phoneNumber" class="block text-sm font-medium text-gray-700">Phone Number</label>
+            <input type="tel" id="phoneNumber" v-model="settings.contact.phone"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+          </div>
+          <div class="mb-4">
+            <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+            <input type="email" id="email" v-model="settings.contact.email"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+          </div>
+        </div>
+
+        <!-- Company Address -->
+        <h3 class="text-lg font-medium mb-3 mt-6">Company Address</h3>
+        <div class="grid grid-cols-1 gap-4">
+          <div class="mb-4">
+            <label for="street" class="block text-sm font-medium text-gray-700">Street Address</label>
+            <input type="text" id="street" v-model="settings.contact.address.street"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="mb-4">
+              <label for="city" class="block text-sm font-medium text-gray-700">City</label>
+              <input type="text" id="city" v-model="settings.contact.address.city"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+            </div>
+            <div class="mb-4">
+              <label for="state" class="block text-sm font-medium text-gray-700">State/Province</label>
+              <input type="text" id="state" v-model="settings.contact.address.state"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+            </div>
+            <div class="mb-4">
+              <label for="zipCode" class="block text-sm font-medium text-gray-700">ZIP/Postal Code</label>
+              <input type="text" id="zipCode" v-model="settings.contact.address.zipCode"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+            </div>
+          </div>
+          <div class="mb-4">
+            <label for="country" class="block text-sm font-medium text-gray-700">Country</label>
+            <input type="text" id="country" v-model="settings.contact.address.country"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer Links -->
+      <!-- <div class="mb-8">
+        <h2 class="text-xl font-semibold mb-4">Footer Links</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="mb-4">
+            <label
+              for="privacyPolicy"
+              class="block text-sm font-medium text-gray-700"
+              >Privacy Policy URL</label
+            >
+            <input
+              type="url"
+              id="privacyPolicy"
+              v-model="settings.footerLinks.privacyPolicy"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+          </div>
+          <div class="mb-4">
+            <label
+              for="termsOfService"
+              class="block text-sm font-medium text-gray-700"
+              >Terms of Service URL</label
+            >
+            <input
+              type="url"
+              id="termsOfService"
+              v-model="settings.footerLinks.termsOfService"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+          </div>
+          <div class="mb-4">
+            <label
+              for="cookiePolicy"
+              class="block text-sm font-medium text-gray-700"
+              >Cookie Policy URL</label
+            >
+            <input
+              type="url"
+              id="cookiePolicy"
+              v-model="settings.footerLinks.cookiePolicy"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+          </div>
+        </div>
+      </div> -->
+
+      <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+        Save Settings
+      </button>
+    </form>
+  </div>
+</template>
+
+<script>
+  // Define Settings component
+  const Settings = {
+    name: "Settings",
+    data() {
+      return {
+        newTag: "",
+        settings: {
+          siteName: "",
+          siteLogo: "",
+          deployedSiteUrl: "",
+          locale: "en-US",
+          currency: "USD",
+          companyDescription: "",
+          socialMedia: {
+            twitter: "",
+            facebook: "",
+            instagram: "",
+            pinterest: "",
+          },
+          quickLinks: ["", "", "", "", ""],
+          categories: [""],
+          tags: [],
+          contact: {
+            phone: "",
+            email: "",
+            address: {
+              street: "",
+              city: "",
+              state: "",
+              zipCode: "",
+              country: "",
+            },
+          },
+          footerLinks: {
+            privacyPolicy: "",
+            termsOfService: "",
+            cookiePolicy: "",
+          },
+          heroTitle: "",
+          heroSubtitle: "",
+        },
+      };
+    },
+    methods: {
+      loadSettings() {
+        google.script.run
+          .withSuccessHandler((data) => {
+            if (data) {
+              const parsedData = JSON.parse(data);
+              // Merge loaded data with default structure
+              this.settings = {
+                ...this.settings,
+                ...parsedData,
+              };
+
+              // Ensure contact structure exists
+              if (!this.settings.contact) {
+                this.settings.contact = {
+                  phone: "",
+                  email: "",
+                  address: {
+                    street: "",
+                    city: "",
+                    state: "",
+                    zipCode: "",
+                    country: "",
+                  },
+                };
+              } else if (!this.settings.contact.address) {
+                // Add address structure if it doesn't exist
+                this.settings.contact.address = {
+                  street: "",
+                  city: "",
+                  state: "",
+                  zipCode: "",
+                  country: "",
+                };
+              }
+            }
+          })
+          .withFailureHandler((err) => {
+            console.error("Error loading settings:", err);
+          })
+          .getSiteSettings();
+      },
+      saveSettings() {
+        google.script.run
+          .withSuccessHandler(() => {
+            alert("Settings saved successfully!");
+          })
+          .withFailureHandler((err) => {
+            alert("Error saving settings: " + err.message);
+            console.error("Error saving settings:", err);
+          })
+          .saveSiteSettings(JSON.stringify(this.settings));
+      },
+      addCategory() {
+        this.settings.categories.push("");
+      },
+      removeCategory(index) {
+        this.settings.categories.splice(index, 1);
+      },
+      addTag() {
+        if (
+          this.newTag.trim() &&
+          !this.settings.tags.includes(this.newTag.trim())
+        ) {
+          this.settings.tags.push(this.newTag.trim());
+          this.newTag = "";
+        }
+      },
+      removeTag(index) {
+        this.settings.tags.splice(index, 1);
+      },
+    },
+    created() {
+      this.loadSettings();
+    },
+    template: document.currentScript.previousElementSibling.innerHTML,
+  };
+</script>
+
+<style scoped>
+  .container {
+    padding: 20px;
+  }
+</style>
