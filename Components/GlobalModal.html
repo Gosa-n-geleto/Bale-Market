@@ -1,0 +1,62 @@
+<script>
+  Vue.component("global-modal", {
+    props: {
+      isOpen: {
+        type: Boolean,
+        required: true,
+      },
+      title: {
+        type: String,
+        default: "",
+      },
+      showFooter: {
+        type: Boolean,
+        default: true,
+      },
+    },
+    template: `
+    <div
+      :class="{ 'is-open': isOpen }"
+      class="global-modal-overlay"
+      @click.self="$emit('close')"
+    >
+      <div
+        class="global-modal-content"
+      >
+        <div class="global-modal-header">
+          <h3 class="global-modal-title">{{ title }}</h3>
+          <button
+            @click="$emit('close')"
+            aria-label="Close modal"
+            class="global-modal-close-button"
+          >
+            &times;
+          </button>
+        </div>
+        <div class="global-modal-body">
+          <slot></slot>
+        </div>
+        <div class="global-modal-footer" v-if="showFooter">
+          <slot name="footer">
+            <button
+              @click="$emit('close')"
+              class="global-modal-footer-button secondary"
+            >
+              Close
+            </button>
+          </slot>
+        </div>
+      </div>
+    </div>
+  `,
+    watch: {
+      isOpen(newVal) {
+        if (newVal) {
+          document.body.style.overflow = "hidden";
+        } else {
+          document.body.style.overflow = "";
+        }
+      },
+    },
+  });
+</script>
