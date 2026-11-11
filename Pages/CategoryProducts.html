@@ -1,0 +1,445 @@
+<template>
+  <div class="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+    <!-- Enhanced Navigation Bar -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+      <div class="container mx-auto px-4">
+        <div class="flex items-center justify-between h-24">
+          <div class="flex items-center space-x-4">
+            <!-- Back Arrow -->
+            <button
+              @click="goBack"
+              class="text-gray-600 hover:text-blue-600 transition-colors p-2 rounded-full hover:bg-gray-100"
+            >
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 19l-7-7 7-7"
+                ></path>
+              </svg>
+            </button>
+
+            <!-- Logo -->
+            <router-link to="/" class="flex items-center space-x-3">
+              <img
+                :src="siteLogo"
+                :alt="settings.siteName"
+                class="w-16 h-16 rounded-sm shadow-md bg-blue-50"
+              />
+              <span class="text-xl font-bold text-gray-800"
+                >{{ settings.siteName }}</span
+              >
+            </router-link>
+          </div>
+
+          <!-- <div class="flex items-center space-x-6">
+            <button class="text-gray-600 hover:text-blue-600 transition-colors">
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                ></path>
+              </svg>
+            </button>
+            <button class="text-gray-600 hover:text-blue-600 transition-colors">
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                ></path>
+              </svg>
+            </button>
+            <button
+              class="text-gray-600 hover:text-blue-600 transition-colors relative"
+            >
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5L2 21m5-8v8a2 2 0 002 2h6a2 2 0 002-2v-8"
+                ></path>
+              </svg>
+              <span
+                class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
+                >0</span
+              >
+            </button>
+          </div> -->
+        </div>
+      </div>
+    </nav>
+
+    <!-- Category Header Section -->
+    <section
+      class="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 text-white py-16"
+    >
+      <div class="container mx-auto px-4">
+        <div class="text-center">
+          <div
+            class="inline-flex items-center bg-white/20 rounded-full px-4 py-2 mb-4"
+          >
+            <svg
+              class="w-5 h-5 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+              ></path>
+            </svg>
+            <span class="text-sm font-medium">Category</span>
+          </div>
+          <h1 class="text-4xl md:text-5xl font-bold mb-4 capitalize">
+            {{ categoryName }}
+          </h1>
+          <p class="text-xl text-blue-100 mb-6">
+            {{ categoryProducts.length }} {{ categoryProducts.length === 1 ?
+            'product' : 'products' }} found
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Products Section -->
+    <section class="py-20 bg-white">
+      <div class="container mx-auto px-4">
+        <!-- Loading State -->
+        <div v-if="loading" class="text-center py-20">
+          <div class="flex justify-center mb-4">
+            <div
+              class="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent"
+            ></div>
+          </div>
+          <p class="text-gray-600 text-lg">Loading products...</p>
+        </div>
+
+        <!-- Error State -->
+        <div v-else-if="error" class="text-center py-20">
+          <div class="text-red-500 mb-6">
+            <svg
+              class="w-16 h-16 mx-auto"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold text-gray-800 mb-2">
+            Oops! Something went wrong
+          </h3>
+          <p class="text-gray-600 mb-6">{{ error }}</p>
+          <button
+            @click="fetchProducts"
+            class="px-6 py-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors font-medium"
+          >
+            Try Again
+          </button>
+        </div>
+
+        <!-- Products Grid -->
+        <div
+          v-else-if="categoryProducts.length > 0"
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
+        >
+          <div
+            v-for="product in categoryProducts"
+            :key="product.id"
+            class="transform hover:scale-105 transition-all duration-300"
+          >
+            <product-card
+              :product="product"
+              :is-edit-mode="false"
+              @edit-product="handleEditProduct"
+              @view-details="handleViewDetails"
+              class="h-full"
+            />
+          </div>
+        </div>
+
+        <!-- No Products -->
+        <div v-else class="text-center py-20">
+          <div class="text-gray-400 mb-4">
+            <svg
+              class="w-20 h-20 mx-auto"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1"
+                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+              ></path>
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold text-gray-800 mb-2">
+            No Products Found
+          </h3>
+          <p class="text-gray-600 mb-6">
+            We couldn't find any products in the "{{ categoryName }}" category.
+          </p>
+          <button
+            @click="goBack"
+            class="px-6 py-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors font-medium"
+          >
+            Go Back
+          </button>
+        </div>
+
+        <!-- Related Categories Section -->
+        <div
+          v-if="categoryProducts.length > 0 && relatedCategories.length > 0"
+          class="mt-16 pt-16 border-t border-gray-200"
+        >
+          <h3 class="text-2xl font-bold text-gray-900 mb-8 text-center">
+            Related Categories
+          </h3>
+          <div class="flex flex-wrap justify-center gap-3">
+            <button
+              v-for="relatedCategory in relatedCategories.slice(0, 6)"
+              :key="relatedCategory"
+              @click="navigateToCategory(relatedCategory)"
+              class="px-6 py-3 bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-700 rounded-full font-medium transition-colors"
+            >
+              {{ relatedCategory }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Popular Tags in this Category -->
+        <div
+          v-if="categoryProducts.length > 0 && popularTagsInCategory.length > 0"
+          class="mt-16 pt-16 border-t border-gray-200"
+        >
+          <h3 class="text-2xl font-bold text-gray-900 mb-8 text-center">
+            Popular Tags in {{ categoryName }}
+          </h3>
+          <div class="flex flex-wrap justify-center gap-2">
+            <button
+              v-for="tag in popularTagsInCategory.slice(0, 15)"
+              :key="tag"
+              @click="navigateToTag(tag)"
+              class="px-3 py-1 bg-gray-100 hover:bg-blue-100 text-gray-600 hover:text-blue-700 rounded-full text-sm transition-colors"
+            >
+              {{ tag }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</template>
+
+<script>
+  const CategoryProducts = {
+    name: "CategoryProducts",
+    data() {
+      return {
+        categoryName: "",
+        products: [],
+        loading: false,
+        error: null,
+        selectedProduct: {},
+        isDrawerOpen: false,
+      };
+    },
+    computed: {
+      categoryProducts() {
+        if (!this.categoryName || !this.products.length) return [];
+
+        return this.products.filter((product) => {
+          if (!product.formData.category) return false;
+
+          return (
+            product.formData.category.toLowerCase() ===
+            this.categoryName.toLowerCase()
+          );
+        });
+      },
+      relatedCategories() {
+        if (!this.settings.categories.length) return [];
+
+        return this.settings.categories.filter(
+          (category) =>
+            category.toLowerCase() !== this.categoryName.toLowerCase()
+        );
+      },
+      popularTagsInCategory() {
+        if (!this.categoryProducts.length) return [];
+
+        const tagCounts = {};
+
+        this.categoryProducts.forEach((product) => {
+          if (product.formData.tags && Array.isArray(product.formData.tags)) {
+            product.formData.tags.forEach((tag) => {
+              const cleanTag = tag.trim();
+              if (cleanTag) {
+                tagCounts[cleanTag] = (tagCounts[cleanTag] || 0) + 1;
+              }
+            });
+          }
+        });
+
+        return Object.entries(tagCounts)
+          .sort((a, b) => b[1] - a[1])
+          .map(([tag]) => tag);
+      },
+      siteLogo() {
+        if (!this.settings || !this.settings.siteLogo) {
+          return "";
+        }
+        return this.$store.transformToThumbnail(this.settings.siteLogo);
+      },
+      settings() {
+        return this.$store.state.settings;
+      },
+    },
+    watch: {
+      $route(to, from) {
+        this.categoryName = to.params.category || "";
+        if (this.categoryName) {
+          this.fetchProducts();
+        }
+      },
+    },
+    created() {
+      this.categoryName = this.$route.params.category || "";
+      console.log(
+        "CategoryProducts component created for category:",
+        this.categoryName
+      );
+      // Ensure store is initialized
+      if (
+        !this.$store.state.settings ||
+        Object.keys(this.$store.state.settings).length === 0
+      ) {
+        this.$store.dispatch("initializeData");
+      }
+    },
+    mounted() {
+      this.fetchProducts();
+    },
+    methods: {
+      transformToThumbnail(url, size = "w100") {
+        if (!url) return "";
+
+        // If already a thumbnail URL, return as is
+        if (url.includes("drive.google.com/thumbnail")) {
+          return url;
+        }
+
+        // Extract file ID from various Google Drive URL formats
+        let fileId = "";
+
+        // Format: https://drive.google.com/file/d/FILE_ID/view
+        const fileMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+        if (fileMatch) {
+          fileId = fileMatch[1];
+        }
+
+        // Format: https://drive.google.com/open?id=FILE_ID
+        const openMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+        if (openMatch) {
+          fileId = openMatch[1];
+        }
+
+        // Format: https://drive.google.com/uc?id=FILE_ID
+        const ucMatch = url.match(/uc\?id=([a-zA-Z0-9_-]+)/);
+        if (ucMatch) {
+          fileId = ucMatch[1];
+        }
+
+        // If we found a file ID, return thumbnail URL
+        if (fileId) {
+          return (
+            "https://drive.google.com/thumbnail?id=" + fileId + "&sz=" + size
+          );
+        }
+
+        // If no Google Drive format detected, return original URL
+        return url;
+      },
+      async fetchProducts() {
+        this.loading = true;
+        this.error = null;
+        try {
+          this.products = this.$store.state.products || [];
+          if (this.products.length === 0) {
+            await this.$store.dispatch("initializeData");
+            this.products = this.$store.state.products || [];
+          }
+          this.loading = false;
+        } catch (error) {
+          this.loading = false;
+          this.error = "Error: " + error.message;
+        }
+      },
+      goBack() {
+        this.$router.go(-1);
+      },
+      navigateToCategory(category) {
+        this.$router.push("/category/" + encodeURIComponent(category));
+      },
+      navigateToTag(tag) {
+        this.$router.push("/tag/" + encodeURIComponent(tag));
+      },
+      handleEditProduct(product) {
+        this.selectedProduct = { ...product };
+        this.isDrawerOpen = true;
+      },
+      closeDrawer() {
+        this.isDrawerOpen = false;
+      },
+      handleSave(formData) {
+        this.closeDrawer();
+        this.fetchProducts();
+      },
+      handleViewDetails(product) {
+        console.log(
+          "CategoryProducts: handleViewDetails called for product:",
+          product
+        );
+        this.$store.dispatch("openProductModal", product);
+      },
+    },
+    template: document.currentScript.previousElementSibling.innerHTML,
+  };
+</script>
