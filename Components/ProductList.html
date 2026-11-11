@@ -1,0 +1,101 @@
+<script>
+  Vue.component("product-list", {
+    props: {
+      products: {
+        type: Array,
+        default: () => [],
+      },
+      loading: {
+        type: Boolean,
+        default: false,
+      },
+      showEditToggle: {
+        type: Boolean,
+        default: true,
+      },
+    },
+    data() {
+      return {
+        error: null,
+      };
+    },
+    mixins: [],
+    methods: {
+      // Generate thumbnail URL (consistent with admin and home)
+      getThumbnailUrl(fileId, size = "w300") {
+        if (!fileId) return null;
+        return (
+          "https://drive.google.com/thumbnail?id=" + fileId + "&sz=" + size
+        );
+      },
+
+      // Calculate final price with discount
+      calculateFinalPrice(product) {
+        const price = parseFloat(product.formData.price) || 0;
+        const discount = parseInt(product.formData.discount) || 0;
+        return price * (1 - discount / 100);
+      },
+
+      // Format price for display
+      formatPrice(price) {
+        return new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "USD",
+        }).format(price);
+      },
+
+      // Handle product card click
+      onProductClick(product) {
+        this.$emit("product-click", product);
+      },
+
+      // Handle edit button click
+      onEditProduct(product) {
+        this.$emit("edit-product", product);
+      },
+    },
+    template: `
+      <div class="product-list">
+
+        <!-- Loading State -->
+        <div v-if="loading" class="text-center py-12">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+          <p class="mt-4 text-gray-600">Loading products...</p>
+        </div>
+
+        <!-- Error State -->
+        <div v-else-if="error" class="text-center py-12">
+          <div class="text-red-500 mb-4">
+            <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <p class="text-gray-700">{{ error }}</p>
+        </div>
+
+        <!-- Products Grid -->
+        <div v-else-if="products.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <product-card
+            v-for="product in products"
+            :key="product.id"
+            :product="product"
+            :is-edit-mode="isEditMode"
+            @edit-product="onEditProduct"
+            @product-click="onProductClick"
+          />
+        </div>
+
+        <!-- Empty State -->
+        <div v-else class="text-center py-12">
+          <div class="text-gray-400 mb-4">
+            <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+            </svg>
+          </div>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">No products available</h3>
+          <p class="text-gray-600">There are no products to display at the moment.</p>
+        </div>
+      </div>
+    `,
+  });
+</script>
