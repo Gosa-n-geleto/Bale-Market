@@ -1,0 +1,101 @@
+<template>
+  <section class="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-16">
+        <span
+          class="text-blue-600 font-semibold text-sm uppercase tracking-wide"
+          >Shop by Category</span
+        >
+        <h2 class="text-4xl font-bold text-gray-900 mt-2 mb-4">
+          Find What You Love
+        </h2>
+        <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+          Browse through our carefully curated categories to find exactly what
+          you are looking for
+        </p>
+      </div>
+
+      <div
+        v-if="categories && categories.length > 0"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
+      >
+        <div
+          v-for="(category, index) in categories"
+          :key="index"
+          @click="selectCategory(category)"
+          class="group bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer"
+        >
+          <div
+            class="w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 bg-blue-500"
+          >
+            <svg
+              class="w-8 h-8 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+              ></path>
+            </svg>
+          </div>
+          <h3
+            class="text-xl font-bold text-gray-900 mb-3 transition-colors group-hover:text-blue-600"
+          >
+            {{ category }}
+          </h3>
+          <p class="text-gray-600 mb-4">
+            Explore our {{ category.toLowerCase() }} collection
+          </p>
+          <div class="text-sm font-semibold text-blue-600">Explore →</div>
+        </div>
+      </div>
+
+      <div v-else class="text-center py-20">
+        <div class="text-gray-400 mb-4">
+          <svg
+            class="w-20 h-20 mx-auto"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1"
+              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+            ></path>
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-800 mb-2">
+          No Categories Available
+        </h3>
+        <p class="text-gray-600">
+          Categories will be loaded from your settings.
+        </p>
+      </div>
+    </div>
+  </section>
+</template>
+
+<script>
+  Vue.component("category-grid", {
+    props: {
+      categories: {
+        type: Array,
+        default: function () {
+          return [];
+        },
+      },
+    },
+    methods: {
+      selectCategory(category) {
+        this.$emit("category-selected", category);
+      },
+    },
+    template: document.currentScript.previousElementSibling.innerHTML,
+  });
+</script>
