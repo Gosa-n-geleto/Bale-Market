@@ -1,0 +1,110 @@
+<template>
+  <div class="category-filter relative w-full">
+    <!-- Left arrow & fade -->
+    <div
+      class="absolute left-0 top-0 bottom-0 w-8 flex items-center justify-start z-20 pointer-events-none"
+    >
+      <div
+        class="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center text-white text-lg shadow animate-bounce"
+      >
+        {{ canScrollLeft ? '←' : '→' }}
+      </div>
+      <div class="absolute left-0 top-0 bottom-0 w-full bg-gradient-to-r from-white to-transparent"></div>
+    </div>
+
+    <!-- Horizontal scrollable row -->
+    <div
+      ref="scrollContainer"
+      class="flex items-center space-x-3 overflow-x-auto no-scrollbar py-3 px-2 scroll-smooth flex-nowrap w-full"
+      @scroll="updateScrollArrows"
+    >
+      <!-- All button -->
+      <button
+        @click="selectCategory(null)"
+        :class="selectedCategory === null
+          ? 'bg-blue-600 text-white shadow-md'
+          : 'bg-gray-100 text-gray-700 hover:bg-blue-50 hover:text-blue-600'"
+        class="flex-shrink-0 px-6 py-2.5 rounded-full font-medium transition-colors whitespace-nowrap"
+      >
+        All
+      </button>
+
+      <!-- Category buttons -->
+      <button
+        v-for="(category, index) in categories"
+        :key="index"
+        @click="selectCategory(category)"
+        :class="selectedCategory === category
+          ? 'bg-blue-600 text-white shadow-md'
+          : 'bg-gray-100 text-gray-700 hover:bg-blue-50 hover:text-blue-600'"
+        class="flex-shrink-0 px-6 py-2.5 rounded-full font-medium transition-colors whitespace-nowrap"
+      >
+        {{ category }}
+      </button>
+    </div>
+
+    <!-- Right arrow & fade -->
+    <div
+      class="absolute right-0 top-0 bottom-0 w-8 flex items-center justify-end z-20 pointer-events-none"
+    >
+      <div
+        class="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center text-white text-lg shadow animate-bounce"
+      >
+        {{ canScrollRight ? '→' : '←' }}
+      </div>
+      <div class="absolute right-0 top-0 bottom-0 w-full bg-gradient-to-l from-white to-transparent"></div>
+    </div>
+  </div>
+</template>
+
+<script>
+Vue.component("category-filter", {
+  props: {
+    categories: { type: Array, default: () => [] },
+    selectedCategory: { type: String, default: null },
+  },
+  data() {
+    return {
+      canScrollRight: false,
+      canScrollLeft: false,
+    };
+  },
+  mounted() {
+    const container = this.$refs.scrollContainer;
+
+    const updateArrows = () => {
+      this.canScrollLeft = container.scrollLeft > 0;
+      this.canScrollRight =
+        container.scrollLeft + container.clientWidth < container.scrollWidth;
+    };
+
+    this.updateScrollArrows = updateArrows;
+
+    updateArrows();
+    window.addEventListener("resize", updateArrows);
+  },
+  methods: {
+    selectCategory(category) {
+      this.$emit("category-selected", category);
+    },
+    updateScrollArrows() {
+      const container = this.$refs.scrollContainer;
+      this.canScrollLeft = container.scrollLeft > 0;
+      this.canScrollRight =
+        container.scrollLeft + container.clientWidth < container.scrollWidth;
+    },
+  },
+  template: document.currentScript.previousElementSibling.innerHTML,
+});
+</script>
+
+<style>
+/* Hide scrollbar but allow scrolling */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+</style>
