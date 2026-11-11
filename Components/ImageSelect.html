@@ -1,0 +1,139 @@
+<script>
+  import { ImageSelect } from "https://cdn.jsdelivr.net/npm/vue-image-select@latest/dist/vue-image-select.min.js";
+
+  console.log(ImageSelect);
+
+  Vue.component("image-select", {
+    props: {
+      value: {
+        type: Object,
+        default: () => ({}),
+      },
+      options: {
+        type: Array,
+        required: true,
+        default: () => [],
+      },
+      placeholder: {
+        type: String,
+        default: "Select an image",
+      },
+    },
+    data() {
+      return {
+        isOpen: false,
+        searchQuery: "",
+        selectedImage: null,
+        imageOptions: [
+          {
+            id: 1,
+            name: "Product Image 1",
+            url: "https://example.com/image1.jpg",
+          },
+          {
+            id: 2,
+            name: "Product Image 2",
+            url: "https://example.com/image2.jpg",
+          },
+        ],
+      };
+    },
+    computed: {
+      filteredOptions() {
+        if (!this.searchQuery) return this.options;
+        const query = this.searchQuery.toLowerCase();
+        return this.options.filter((option) =>
+          option.name.toLowerCase().includes(query)
+        );
+      },
+      selectedImage() {
+        return this.options.find((opt) => opt.id === this.value.id) || null;
+      },
+    },
+    methods: {
+      selectOption(option) {
+        this.$emit("input", option);
+        this.isOpen = false;
+        this.searchQuery = "";
+      },
+      toggleDropdown() {
+        this.isOpen = !this.isOpen;
+      },
+      closeDropdown() {
+        this.isOpen = false;
+      },
+    },
+    template: `
+      <div class="relative">
+        <h1>Image Select</h1>
+        <!-- Selected Image Display -->
+        <div 
+          @click="toggleDropdown"
+          class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:border-blue-500 transition-colors"
+        >
+          <div v-if="selectedImage" class="flex items-center gap-3 flex-1">
+            <img 
+              :src="selectedImage.url" 
+              :alt="selectedImage.name"
+              class="w-12 h-12 object-cover rounded"
+            />
+            <span class="text-gray-700">{{ selectedImage.name }}</span>
+          </div>
+          <div v-else class="text-gray-500 flex-1">
+            {{ placeholder }}
+          </div>
+          <svg 
+            class="w-5 h-5 text-gray-400"
+            :class="{ 'transform rotate-180': isOpen }"
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+
+        <!-- Dropdown Menu -->
+        <div 
+          v-if="isOpen"
+          class="absolute z-50 w-full mt-1 bg-white border rounded-lg shadow-lg max-h-96 overflow-y-auto"
+        >
+          <!-- Search Input -->
+          <div class="p-2 border-b">
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Search images..."
+              class="w-full p-2 border rounded focus:outline-none focus:border-blue-500"
+            />
+          </div>
+
+          <!-- Options List -->
+          <div class="py-1">
+            <div
+              v-for="option in filteredOptions"
+              :key="option.id"
+              @click="selectOption(option)"
+              class="flex items-center gap-3 p-3 hover:bg-gray-100 cursor-pointer"
+            >
+              <img 
+                :src="option.url" 
+                :alt="option.name"
+                class="w-12 h-12 object-cover rounded"
+              />
+              <span class="text-gray-700">{{ option.name }}</span>
+            </div>
+            
+            <!-- No Results -->
+            <div 
+              v-if="filteredOptions.length === 0"
+              class="p-3 text-gray-500 text-center"
+            >
+              No images found
+            </div>
+          </div>
+        </div>
+      </div>
+    `,
+  });
+</script>
