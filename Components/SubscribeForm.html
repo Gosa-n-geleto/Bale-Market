@@ -1,0 +1,227 @@
+<script>
+  Vue.component("subscribe-form", {
+    template: `
+    <section class="py-8 bg-[linear-gradient(90deg,_#000000,_#c89116)]">
+      <div class="container mx-auto px-4 text-center">
+        <div class="max-w-2xl mx-auto">
+          <h2 class="text-3xl font-bold text-white mb-3">Stay in the Loop</h2>
+          <p class="text-lg text-yellow-100 mb-6">
+            Get exclusive access to new arrivals, special offers, and insider
+            updates
+          </p>
+
+          <!-- Newsletter Form -->
+          <form
+            @submit.prevent="handleSubmit"
+            class="max-w-md mx-auto"
+          >
+            <div class="flex flex-col sm:flex-row gap-4">
+              <input
+                v-model="newsletterEmail"
+                type="email"
+                placeholder="Enter your email"
+                required
+                :disabled="newsletterLoading"
+                class="flex-1 px-6 py-4 rounded-full border-0 focus:ring-4 focus:ring-blue-300 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+              />
+              <button
+                type="submit"
+                :disabled="newsletterLoading || !newsletterEmail"
+                class="bg-white text-blue-600 px-8 py-4 rounded-full font-semibold hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                <span
+                  v-if="newsletterLoading"
+                  class="animate-spin rounded-full h-4 w-4 border-2 border-blue-600 border-t-transparent"
+                ></span>
+                <span v-else>Subscribe</span>
+              </button>
+            </div>
+          </form>
+
+          <!-- Success Message -->
+          <div
+            v-if="newsletterSuccess"
+            class="mt-6 p-4 bg-green-500/20 border border-green-400 rounded-lg text-green-100"
+          >
+            <div class="flex items-center justify-center gap-2">
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 13l4 4L19 7"
+                ></path>
+              </svg>
+              {{ newsletterMessage }}
+            </div>
+          </div>
+
+          <!-- Error Message -->
+          <div
+            v-if="newsletterError"
+            class="mt-6 p-4 bg-red-500/20 border border-red-400 rounded-lg text-red-100"
+          >
+            <div class="flex items-center justify-center gap-2">
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
+              </svg>
+              {{ newsletterMessage }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  `,
+
+    data() {
+      return {
+        newsletterEmail: "",
+        newsletterLoading: false,
+        newsletterSuccess: false,
+        newsletterError: false,
+        newsletterMessage: "",
+      };
+    },
+
+    methods: {
+      handleSubmit() {
+        this.newsletterLoading = true;
+        this.newsletterError = false;
+        this.newsletterSuccess = false;
+        this.newsletterMessage = "";
+
+        google.script.run
+          .withSuccessHandler((response) => {
+            this.newsletterLoading = false;
+            if (response.success) {
+              this.newsletterSuccess = true;
+              this.newsletterMessage = "Thank you for subscribing!";
+              this.newsletterEmail = "";
+            } else {
+              this.newsletterError = true;
+              this.newsletterMessage = response.error || "An error occurred";
+            }
+          })
+          .withFailureHandler((error) => {
+            this.newsletterLoading = false;
+            this.newsletterError = true;
+            this.newsletterMessage = "An error occurred while subscribing";
+          })
+          .subscribeToNewsletter(this.newsletterEmail);
+      },
+    },
+  });
+</script>
+
+<style>
+  .subscribe-form {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin: 2rem 0;
+  }
+
+  .subscribe-form__content {
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .subscribe-form__title {
+    font-size: 1.5rem;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+  }
+
+  .subscribe-form__description {
+    color: #666;
+    margin-bottom: 1.5rem;
+  }
+
+  .subscribe-form__form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .subscribe-form__input-group {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .subscribe-form__input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+  }
+
+  .subscribe-form__input:focus {
+    outline: none;
+    border-color: #4299e1;
+  }
+
+  .subscribe-form__input.error {
+    border-color: #e53e3e;
+  }
+
+  .subscribe-form__button {
+    padding: 0.75rem 1.5rem;
+    background-color: #4299e1;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .subscribe-form__button:hover {
+    background-color: #3182ce;
+  }
+
+  .subscribe-form__button:disabled {
+    background-color: #a0aec0;
+    cursor: not-allowed;
+  }
+
+  .subscribe-form__error {
+    color: #e53e3e;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+  }
+
+  .subscribe-form__success {
+    color: #38a169;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+  }
+
+  @media (max-width: 640px) {
+    .subscribe-form__input-group {
+      flex-direction: column;
+    }
+
+    .subscribe-form__button {
+      width: 100%;
+    }
+  }
+</style>
