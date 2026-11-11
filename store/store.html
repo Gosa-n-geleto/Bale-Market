@@ -1,0 +1,393 @@
+<script>
+  const store = {
+    debug: true,
+    state: {
+      products: [],
+      isModalOpen: false, // New: For global modal
+      modalProduct: null, // New: For product data in modal
+      settings: {
+        siteName: "",
+        siteLogo: "",
+        heroTitle: "",
+        heroSubtitle: "",
+        companyDescription: "",
+        deployedSiteUrl: "",
+        locale: "en-US",
+        currency: "USD",
+        socialMedia: {
+          twitter: "",
+          facebook: "",
+          instagram: "",
+          pinterest: "",
+        },
+        quickLinks: ["", "", "", "", ""],
+        categories: ["", "", "", "", ""],
+        contact: {
+          phone: "",
+          email: "",
+          address: {
+            street: "",
+            city: "",
+            state: "",
+            zipCode: "",
+            country: "",
+          },
+        },
+        footerLinks: {
+          privacyPolicy: "",
+          termsOfService: "",
+          cookiePolicy: "",
+        },
+        tags: [],
+      },
+      settingsLastUpdated: null, // Track when settings were last updated
+      isOffline: false, // Track online/offline status
+    },
+    getters: {
+      getProductById: (state) => (id) => {
+        return state.products.find((product) => product.id === id);
+      },
+      getProductsBySection: (state) => (sectionName) => {
+        return state.products.filter((p) => p.formData.section === sectionName);
+      },
+      // Transform siteLogo to Google Drive thumbnail format
+      siteLogo: (state) => {
+        return store.transformToThumbnail(state.settings.siteLogo);
+      },
+      // Check if settings are cached and recent
+      isSettingsCacheValid: (state) => {
+        const cacheExpiry = 5 * 60 * 1000; // 5 minutes
+        return (
+          state.settingsLastUpdated &&
+          Date.now() - state.settingsLastUpdated < cacheExpiry
+        );
+      },
+      // Add other getters as needed
+    },
+
+    // localStorage helper methods
+    localStorage: {
+      // Settings key
+      SETTINGS_KEY: "catalog_settings",
+
+      // Save settings to localStorage
+      saveSettings(settings) {
+        try {
+          localStorage.setItem(this.SETTINGS_KEY, JSON.stringify(settings));
+          if (store.debug)
+            console.log("Settings saved to localStorage:", settings);
+          return true;
+        } catch (error) {
+          console.error("Error saving settings to localStorage:", error);
+          return false;
+        }
+      },
+
+      // Load settings from localStorage
+      loadSettings() {
+        try {
+          const settingsJson = localStorage.getItem(this.SETTINGS_KEY);
+          if (settingsJson) {
+            return JSON.parse(settingsJson);
+          }
+          return null;
+        } catch (error) {
+          console.error("Error loading settings from localStorage:", error);
+          return null;
+        }
+      },
+
+      // Clear settings from localStorage
+      clearSettings() {
+        try {
+          localStorage.removeItem(this.SETTINGS_KEY);
+          if (store.debug) console.log("Settings cleared from localStorage");
+        } catch (error) {
+          console.error("Error clearing settings from localStorage:", error);
+        }
+      },
+    },
+
+    // Helper method to transform Google Drive URLs to thumbnail format
+    transformToThumbnail(url, size = "w200") {
+      if (!url) return "";
+
+      // If already a thumbnail URL, return as is
+      if (url.includes("drive.google.com/thumbnail")) {
+        return url;
+      }
+
+      // Extract file ID from various Google Drive URL formats
+      let fileId = "";
+
+      // Format: https://drive.google.com/file/d/FILE_ID/view
+      const fileMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+      if (fileMatch) {
+        fileId = fileMatch[1];
+      }
+
+      // Format: https://drive.google.com/open?id=FILE_ID
+      const openMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      if (openMatch) {
+        fileId = openMatch[1];
+      }
+
+      // Format: https://drive.google.com/uc?id=FILE_ID
+      const ucMatch = url.match(/uc\?id=([a-zA-Z0-9_-]+)/);
+      if (ucMatch) {
+        fileId = ucMatch[1];
+      }
+
+      // If we found a file ID, return thumbnail URL
+      if (fileId) {
+        return (
+          "https://drive.google.com/thumbnail?id=" + fileId + "&sz=" + size
+        );
+      }
+
+      // If no Google Drive format detected, return original URL
+      return url;
+    },
+
+    actions: {
+      initializeData(context) {
+        // Load products
+        google.script.run
+          .withSuccessHandler((response) => {
+            if (response && response.success && response.products) {
+              context.commit("SET_PRODUCTS", response.products);
+            } else if (response && !response.success && response.error) {
+              console.error(
+                "Error initializing products in store:",
+                response.error
+              );
+            } else if (response && Array.isArray(response)) {
+              context.commit("SET_PRODUCTS", response);
+            } else {
+              console.error(
+                "Unexpected products response structure in store init:",
+                response
+              );
+              context.commit("SET_PRODUCTS", []);
+            }
+          })
+          .withFailureHandler((error) => {
+            console.error(
+              "Failure handler: Error initializing products in store:",
+              error
+            );
+            context.commit("SET_PRODUCTS", []);
+          })
+          .getAllProducts();
+
+        // Load settings with caching
+        context.dispatch("loadSettingsWithCache");
+      },
+
+      // Action to load settings with localStorage fallback
+      loadSettingsWithCache(context) {
+        // First, try to load from localStorage for immediate display
+        const cachedSettings = store.localStorage.loadSettings();
+        if (cachedSettings) {
+          context.commit("SET_SETTINGS", cachedSettings);
+          if (store.debug) {
+            console.log("Settings loaded from localStorage:", cachedSettings);
+          }
+        }
+
+        // Then load from backend and update localStorage
+        google.script.run
+          .withSuccessHandler((data) => {
+            if (data) {
+              try {
+                const parsedData = JSON.parse(data);
+                context.commit("SET_SETTINGS", parsedData);
+                // Save fresh data to localStorage
+                store.localStorage.saveSettings(parsedData);
+                context.commit("SET_OFFLINE_STATUS", false);
+
+                if (store.debug) {
+                  console.log("Settings refreshed from backend:", parsedData);
+                }
+              } catch (error) {
+                console.error("Error parsing settings from backend:", error);
+              }
+            }
+          })
+          .withFailureHandler((err) => {
+            console.error("Error loading settings from backend:", err);
+            context.commit("SET_OFFLINE_STATUS", true);
+          })
+          .getSiteSettings();
+      },
+
+      // New action to save settings to both backend and cache
+      saveSettings(context, settingsData) {
+        return new Promise((resolve, reject) => {
+          // Save to localStorage immediately for instant feedback
+          context.commit("SET_SETTINGS", settingsData);
+          context.commit("SET_SETTINGS_TIMESTAMP", Date.now());
+          store.localStorage.saveSettings(settingsData);
+
+          // Then save to backend
+          google.script.run
+            .withSuccessHandler((response) => {
+              context.commit("SET_OFFLINE_STATUS", false);
+              if (store.debug) {
+                console.log("Settings saved to backend successfully");
+              }
+              resolve(response);
+            })
+            .withFailureHandler((error) => {
+              console.error("Error saving settings to backend:", error);
+              context.commit("SET_OFFLINE_STATUS", true);
+              reject(error);
+            })
+            .saveSiteSettings(JSON.stringify(settingsData));
+        });
+      },
+
+      // Action to force refresh settings from backend
+      refreshSettingsFromBackend(context) {
+        return new Promise((resolve, reject) => {
+          google.script.run
+            .withSuccessHandler((data) => {
+              if (data) {
+                try {
+                  const parsedData = JSON.parse(data);
+                  context.commit("SET_SETTINGS", parsedData);
+                  context.commit("SET_SETTINGS_TIMESTAMP", Date.now());
+                  store.localStorage.saveSettings(parsedData);
+                  context.commit("SET_OFFLINE_STATUS", false);
+                  resolve(parsedData);
+                } catch (error) {
+                  console.error("Error parsing settings from backend:", error);
+                  reject(error);
+                }
+              } else {
+                reject(new Error("No data received from backend"));
+              }
+            })
+            .withFailureHandler((error) => {
+              console.error("Error refreshing settings from backend:", error);
+              context.commit("SET_OFFLINE_STATUS", true);
+              reject(error);
+            })
+            .getSiteSettings();
+        });
+      },
+
+      // Action to clear settings cache
+      clearSettingsCache(context) {
+        store.localStorage.clearSettings();
+        context.commit("SET_SETTINGS_TIMESTAMP", null);
+        if (store.debug) {
+          console.log("Settings cache cleared");
+        }
+      },
+
+      // New actions for modal
+      openProductModal(context, product) {
+        context.commit("OPEN_MODAL", product);
+      },
+      closeProductModal(context) {
+        context.commit("CLOSE_MODAL");
+      },
+    },
+    mutations: {
+      SET_PRODUCTS(state, productsData) {
+        state.products = Array.isArray(productsData) ? productsData : [];
+      },
+
+      SET_SETTINGS(state, settingsData) {
+        state.settings = {
+          ...state.settings,
+          ...settingsData,
+        };
+
+        // Ensure contact structure exists for backward compatibility
+        if (!state.settings.contact) {
+          state.settings.contact = {
+            phone: "",
+            email: "",
+            address: {
+              street: "",
+              city: "",
+              state: "",
+              zipCode: "",
+              country: "",
+            },
+          };
+        } else if (!state.settings.contact.address) {
+          // Add address structure if it doesn't exist
+          state.settings.contact.address = {
+            street: "",
+            city: "",
+            state: "",
+            zipCode: "",
+            country: "",
+          };
+        }
+      },
+
+      SET_SETTINGS_TIMESTAMP(state, timestamp) {
+        state.settingsLastUpdated = timestamp;
+      },
+
+      SET_OFFLINE_STATUS(state, isOffline) {
+        state.isOffline = isOffline;
+      },
+
+      // New mutations for modal
+      OPEN_MODAL(state, product) {
+        state.modalProduct = product;
+        state.isModalOpen = true;
+      },
+      CLOSE_MODAL(state) {
+        state.isModalOpen = false;
+        state.modalProduct = null;
+      },
+    },
+  };
+
+  // Helper to commit mutations
+  store.commit = function (mutationName, payload) {
+    if (this.mutations[mutationName]) {
+      this.mutations[mutationName](this.state, payload);
+    }
+  };
+
+  // Helper to dispatch actions
+  store.dispatch = async function (actionName, payload) {
+    if (this.actions[actionName]) {
+      try {
+        return await this.actions[actionName](this, payload);
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    } else {
+      return Promise.reject(new Error(`Action "${actionName}" not found.`));
+    }
+  };
+
+  // Initialize online/offline detection
+  if (typeof window !== "undefined") {
+    window.addEventListener("online", () => {
+      store.commit("SET_OFFLINE_STATUS", false);
+      if (store.debug) console.log("App came online");
+      // Optionally refresh settings when coming online
+      store.dispatch("refreshSettingsFromBackend").catch(console.error);
+    });
+
+    window.addEventListener("offline", () => {
+      store.commit("SET_OFFLINE_STATUS", true);
+      if (store.debug) console.log("App went offline");
+    });
+  }
+
+  if (store.debug)
+    console.log(
+      "Store object initialized with localStorage caching and helpers attached:",
+      store
+    );
+</script>
